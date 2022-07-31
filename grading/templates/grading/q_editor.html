@@ -1,0 +1,101 @@
+{% extends "account/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %} {% if title %} {{title}} {% else %} {% endif %} Questions Editor {% endblock title %}
+
+{% block content %}
+<div class="columns">
+    <div class="column box is-three-fifths is-offset-one-fifth mt-4 qeditor-holder">
+        <div class="field">
+            <label class="label">Select Course</label>
+            <div class="control">
+                <form action="{% url 'courses-get_courses' %}">
+                    <div class="select">
+                        <select id="course-select">
+                        </select>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="field">
+            <label class="label">Select Question Bank</label>
+            <div class="control">
+                <form action="{% url 'courses-get_courses' %}">
+                    <div class="select">
+                        <select id="qbank-select">
+                        </select>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="container " id="questions">
+            <div class="question box ">
+                <div class="block">
+                    <label class="label" for="question-content">Prompt</label>
+                    <textarea name="question-content" id="" cols="50" rows="4"></textarea>
+                </div>
+                <label class="checkbox">
+                    <input type="checkbox">
+                    Subjective
+                </label>
+                <div class="button column is-three-fifths p-2 is-offset-one-fifth" id="add-question">
+                    <span class="icon"><i class="fa-solid fa-plus"></i></span>
+                    <span>Add Question</span>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+
+{% endblock content %}
+
+{% block postBody%}
+<script type="text/javascript">
+    function loadCourses(){
+        url = window.location.origin += "{% url 'courses-get_courses' %}";
+        fetch(url, {
+            method :"POST"
+        })
+        .then((resp) => {
+            resp.json().then((data) =>{
+                for([key, value] of Object.entries(data)){
+                    $("#course-select").append(`<option value='${key}'>${key}</option>`);
+                    // console.log($("#course-select").append("Hello"));
+                }
+                getQbanks();
+            })
+        })
+    }
+    loadCourses();
+
+    function getQbanks(){
+        $("#qbank-select").empty();
+        url = window.location.origin += "{% url 'grading-get_qbanks' %}";
+        data = new FormData();
+        data.append("code", $("#course-select").val());
+
+        fetch(url, {
+            method:"POST", 
+            body: data
+        }).then((response) => {
+            response.json().then((data) =>{
+                //handler
+                
+                for([key, value] of Object.entries(data)){
+                    $("#qbank-select").append(`<option value='${key}'>${value}</option>`);
+                }
+            })
+        })
+
+    }
+    $("#course-select").on('change', getQbanks);
+
+    var questions = [];
+    function createQuestion(){
+    }
+    
+</script>
+{% endblock postBody%}

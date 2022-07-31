@@ -1,46 +1,28 @@
 {% extends "account/base.html" %}
+{% load crispy_forms_tags %}
 
 {% block title %} {% if title %} {{title}} {% endif %} {% endblock title %}
 
 {% block content %}
-
-<div class="card" style="width: 50%; margin: auto;">
-    <form class="loginForm" style="padding: 2vw;">
-        <fieldset>
-            <div class="form-group">
-                <label class="form-label" for="input-example-1">Username</label>
-                <input class="form-input" type="text" id="input-example-1" placeholder="Name">
+    <div class="columns">
+        <div class="column is-three-fifths is-offset-one-fifth">
+            <div class="card">
+                <h1 class="title p-5 has-text-centered">Login</h1>
+                <form class="p-5" method="POST" action="{% url 'account-login' %}">
+                    <fieldset>
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        <button type="submit" class="button is-primary" style="margin:auto;">Submit</button>
+                    </fieldset>
+                </form>
             </div>
-            <div class="form-group">
-                <label class="form-label" for="input-example-1">Password</label>
-                <input class="form-input" type="password" id="input-example-1" placeholder="Name">
-            </div>
-            <span class="label"></span>
-            <button class="btn submitBtn">Log In</button>
-        </fieldset>
-    </form>
-</div>
-
-
-
+        </div>
+    </div>
+    
 {% endblock content %}
 
 {% block postBody%}
 <script type="text/javascript">
-    var url = "{% url 'account-login' %}";
-    var submitBtn = document.querySelector(".submitBtn");
-    var info = document.querySelector(".label");
 
-
-    submitBtn.addEventListener('onClick', function callBack(){
-        var data = new FormData(document.querySelector(".loginForm"))
-        var data = {
-            headers:{
-                "content-type":"application/json"
-            }
-            
-        }
-        fetch(url, )
-    });
 </script>
 {% endblock postBody%}

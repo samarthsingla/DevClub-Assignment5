@@ -1,4 +1,5 @@
 {% load crispy_forms_tags %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -16,6 +17,8 @@
     <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre-icons.min.css"> -->
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://kit.fontawesome.com/282613ff9e.js" crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -39,28 +42,18 @@
                     Home
                 </a>
 
-                <a class="navbar-item">
-                    Documentation
-                </a>
-
                 <div class="navbar-item has-dropdown is-hoverable">
                     <a class="navbar-link">
-                        More
+                        Courses
                     </a>
 
                     <div class="navbar-dropdown">
-                        <a class="navbar-item">
-                            About
-                        </a>
-                        <a class="navbar-item">
-                            Jobs
-                        </a>
-                        <a class="navbar-item">
-                            Contact
+                        <a class="navbar-item" href="#">
+                            View Courses
                         </a>
                         <hr class="navbar-divider">
-                        <a class="navbar-item">
-                            Report an issue
+                        <a class="navbar-item" href="{% url 'courses-add_course' %}">
+                            Add Course
                         </a>
                     </div>
                 </div>
@@ -69,21 +62,50 @@
             <div class="navbar-end">
                 <div class="navbar-item">
                     <div class="buttons">
+                        
+                        {% if request.user.is_authenticated %}
+                        
+                        <a class="button is-ghost" href="{% url 'account-profile' %}">
+                            Hello, {{request.user.name.split|first}}
+                        </a>
+                        <a class="button is-primary" href="{% url 'account-logout' %}">
+                            <strong>Logout</strong>
+                        </a>
+                        {% else %}
+
                         <a class="button is-primary" href="{% url 'account-register' %}">
                             <strong>Sign up</strong>
                         </a>
                         <a class="button is-light" href="{% url 'account-login' %}">
                             Log in
                         </a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
     </nav>
+    {% for message in messages%}
+        <div class="notification {% if message.tags != 'info' %} is-{{ message.tags }} {% endif %}">
+            <button class="delete"></button>
+            {{ message }}
+        </div>
+    {% endfor %}
     <div class="container">
         {% block content %} {% endblock %}
     </div>
 </body>
-{% block postBody%} {% endblock postBody%}
+<script type="text/javascript">
+    function delNoti(e){
+        e.target.parentElement.remove();
+    }
+    buttons = document.getElementsByClassName("delete");
+    for(var btn of buttons){
+        btn.addEventListener("click", delNoti);
+    }
+</script>
+{% block postBody%} 
+
+{% endblock postBody%}
 
 </html>
