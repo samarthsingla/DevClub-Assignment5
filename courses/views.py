@@ -32,7 +32,7 @@ def get_courses(request):
         user = request.user
         if user.is_authenticated:
             courses = {}
-            for course in Course.objects.filter():
+            for course in user.course_set.all():
                 courses[course.code] = course.title
             return JsonResponse(courses)
         else:

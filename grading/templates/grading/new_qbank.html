@@ -1,0 +1,89 @@
+{% extends "account/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %} {% if title %} {{title}} {% else %} {% endif %} {% endblock title %}
+
+{% block content %}
+
+<div class="columns">
+    <div class="column is-three-fifths is-offset-one-fifth">
+        <div class="box">
+            <div class="notifications">
+
+            </div>
+            <section class="block has-text-centered">
+                <label for="" class="label">Select Course</label>
+                <div class="select">
+                    <select id="course-select">
+                    </select>
+                </div>
+            </section>
+            
+            <div class="block has-text-centered">
+                <label for="" class="label">Question Bank Code</label>
+                <input type="text" class="input" id="qbank-code">
+            </div>
+            <div class="block has-text-centered">
+                <label class="label">Full Name</label>
+                <input type="text" class="input" id="qbank-name">
+            </div>
+            <div class="block has-text-centered">
+                <button class="button is-primary" id="submit">
+                    Create
+                </button>
+            </div>
+            
+
+        </div>
+    </div>
+</div>
+    
+{% endblock content %}
+
+{% block postBody%}
+<script type="text/javascript">
+    function loadCourses() {
+        url = window.location.origin + "{% url 'courses-get_courses' %}";
+        fetch(url, {
+            method: "POST"
+        })
+            .then((resp) => {
+                resp.json().then((data) => {
+                    for ([key, value] of Object.entries(data)) {
+                        $("#course-select").append(`<option value='${key}'>${key}</option>`);
+                        // console.log($("#course-select").append("Hello"));
+                    }
+                })
+            })
+    }
+    loadCourses();
+
+    $("#submit").on('click', (e) => {
+        var name = $("#qbank-name").val();
+        var code = $("#qbank-code").val();
+        var course_code = $("#course-select").val();
+        url = window.location.origin + '{% url "grading-new_qbank" %}';
+        data = {'code':code, 'course_code':course_code, 'name':name};
+        console.log(data)
+        fetch(url, {
+            method:"POST", 
+            body:JSON.stringify(data), 
+            redirect:'follow',
+        }).then((response) =>{
+            console.log(response);
+            if(response.status == 401){
+                //non unique qbank code
+                console.log("Hello");
+                $(".notifications").append(createErrorNoti("Question bank with this code already exists!"))
+            }
+            if(response.redirected){
+                window.location.href = response.url;
+            }
+        })
+    })
+    function createErrorNoti(text){
+        var templ = `<div class="notification is-danger">` + text + `</div>`;
+        return $(templ);
+    }
+</script>
+{% endblock postBody%}

@@ -22,5 +22,12 @@
 {% endblock content %}
 
 {% block postBody%}
-
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("select").selectize({
+                create:false
+            })
+            $(".selectize-control.multi").attr('style', 'min-width:120px');
+        });
+    </script>
 {% endblock postBody%}

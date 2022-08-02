@@ -1,4 +1,4 @@
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import render, HttpResponse, redirect
 from django.views.decorators.csrf import csrf_exempt
 from grading.models import Question, QuestionBank
 from courses.models import Course
@@ -50,3 +50,26 @@ def add_questions(request):
         return HttpResponse()
     else:
         return render(request, 'account/genericError.html', {'error_message':'You need to be logged in as an instructor to add questions'})
+
+@csrf_exempt
+def new_qbank(request):
+    user = request.user 
+    if user.is_authenticated and user.is_instructor:
+        if request.method == "GET":
+            return render(request, 'grading/new_qbank.html')
+        else:
+            data = json.loads(request.body)
+            print(request.body)
+            qb = QuestionBank()
+            qb.course = Course.objects.get(code=data['course_code'])
+            qb.qb_code = data['code']
+            if(QuestionBank.objects.filter(qb_code = data['code']).exists()):
+                print("Oops")
+                return HttpResponse(status=401)
+            qb.name = data['name']
+            qb.save()
+            print("Saved")
+            return redirect('grading-question_Editor')
+    else:
+        return render(request, 'account/genericError.html', {'error_message':'You need to be logged in as an instructor to create question banks'})
+
