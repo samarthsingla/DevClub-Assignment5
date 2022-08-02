@@ -1,51 +1,49 @@
 {% extends "account/base.html" %}
 {% load crispy_forms_tags %}
 
-{% block title %} {% if title %} {{title}} {% else %} {% endif %} Questions Editor {% endblock title %}
+{% block title %} {% if title %} {{title}} {% else %} {% endif %} Add Questions {% endblock title %}
 
 {% block content %}
 <div class="columns">
     <div class="column box is-three-fifths is-offset-one-fifth mt-4 qeditor-holder">
-        <div class="field">
-            <label class="label">Select Course</label>
-            <div class="control">
-                <form action="{% url 'courses-get_courses' %}">
-                    <div class="select">
-                        <select id="course-select">
-                        </select>
-                    </div>
-                </form>
-            </div>
-        </div>
-        <div class="field">
-            <label class="label">Select Question Bank</label>
-            <div class="control">
-                <form action="{% url 'courses-get_courses' %}">
-                    <div class="select">
-                        <select id="qbank-select">
-                        </select>
-                    </div>
-                </form>
-            </div>
-        </div>
-        <div class="container " id="questions">
-            <div class="question box ">
-                <div class="block">
-                    <label class="label" for="question-content">Prompt</label>
-                    <textarea name="question-content" id="" cols="50" rows="4"></textarea>
-                </div>
-                <label class="checkbox">
-                    <input type="checkbox">
-                    Subjective
-                </label>
-                <div class="button column is-three-fifths p-2 is-offset-one-fifth" id="add-question">
-                    <span class="icon"><i class="fa-solid fa-plus"></i></span>
-                    <span>Add Question</span>
+        <section class="section has-text-centered">
+            <div class="field">
+                <label class="label">Select Course</label>
+                <div class="control">
+                    <form action="{% url 'courses-get_courses' %}">
+                        <div class="select">
+                            <select id="course-select">
+                            </select>
+                        </div>
+                    </form>
                 </div>
             </div>
+            <div class="field">
+                <label class="label">Select Question Bank</label>
+                <div class="control">
+                    <form action="{% url 'courses-get_courses' %}">
+                        <div class="select">
+                            <select id="qbank-select">
+                            </select>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+        <h3 class="title">Add Questions</h3>
+        <div class="container" id="questions">
         </div>
+        <button class="button mt-3 is-primary" id="add-question">
+            <span class="icon"><i class="fa-solid fa-square-plus"></i></span>
+            <span>Question</span>
+        </button>
 
-
+        <section class="section has-text-centered">
+            <button class="button is-fullwidth" id="save-questions">
+                <span class="icon"><i class="fa-regular fa-floppy-disk"></i></span>
+                <span>Save</span>
+            </button>
+        </section>
     </div>
 </div>
 
@@ -54,37 +52,37 @@
 
 {% block postBody%}
 <script type="text/javascript">
-    function loadCourses(){
-        url = window.location.origin += "{% url 'courses-get_courses' %}";
+
+    function loadCourses() {
+        url = window.location.origin + "{% url 'courses-get_courses' %}";
         fetch(url, {
-            method :"POST"
+            method: "POST"
         })
-        .then((resp) => {
-            resp.json().then((data) =>{
-                for([key, value] of Object.entries(data)){
-                    $("#course-select").append(`<option value='${key}'>${key}</option>`);
-                    // console.log($("#course-select").append("Hello"));
-                }
-                getQbanks();
+            .then((resp) => {
+                resp.json().then((data) => {
+                    for ([key, value] of Object.entries(data)) {
+                        $("#course-select").append(`<option value='${key}'>${key}</option>`);
+                        // console.log($("#course-select").append("Hello"));
+                    }
+                    getQbanks();
+                })
             })
-        })
     }
     loadCourses();
 
-    function getQbanks(){
+    function getQbanks() {
         $("#qbank-select").empty();
-        url = window.location.origin += "{% url 'grading-get_qbanks' %}";
+        url = window.location.origin + "{% url 'grading-get_qbanks' %}";
         data = new FormData();
         data.append("code", $("#course-select").val());
 
         fetch(url, {
-            method:"POST", 
+            method: "POST",
             body: data
         }).then((response) => {
-            response.json().then((data) =>{
+            response.json().then((data) => {
                 //handler
-                
-                for([key, value] of Object.entries(data)){
+                for ([key, value] of Object.entries(data)) {
                     $("#qbank-select").append(`<option value='${key}'>${value}</option>`);
                 }
             })
@@ -94,8 +92,161 @@
     $("#course-select").on('change', getQbanks);
 
     var questions = [];
-    function createQuestion(){
+    var qTemplate = `<div class="question box">
+                <div class="block">
+                    <div class="level">
+                        <div class="level-left"><label class="label"> Prompt </label></div>
+                        <div class="level-right"><button class="delete"></button></div>
+                    </div>
+                    <textarea class="textarea" name="question-content" id="" placeholder=""></textarea>
+                </div>
+                <label class="label"> Marks </label>
+                <div class="field is-grouped">
+                    <p class="control">
+                        <div class="field has-addons">
+                            <div class="control">
+                                <span class="icon button is-static"><i class="fa-solid fa-plus"></i></span>
+                            </div>
+                            <div class="control">
+                                <span><input type="number" class="input" id="plus-marks" default=4></span>
+                            </div>
+                        </div>
+                    </p>
+                    <p class="control">
+                        <div class="field has-addons">
+                            <div class="control">
+                                <span class="icon button is-static"><i class="fa-solid fa-minus"></i></span>
+                            </div>
+                            <div class="control">
+                                <span><input type="number" class="input" id="minus-marks" default=1></span>
+                            </div>
+                        </div>
+                    </p>
+                </div>
+                <label class="label">Type</label>
+                <div class="select">
+                    <select id="type-select">
+                        <option value="objective">Objective</option>
+                        <option value="subjective">Subjective</option>
+                    </select>
+                </div>
+                <section class="section" id="optionManager">
+                    <p class="menu-label">Options</p>
+                    <div class="options">
+
+                    </div>
+                    <button class="button is-light mt-3" id="add-option">
+                        <span class="icon"><i class="fa-solid fa-square-plus"></i></span>
+                        <span>Option</span>
+                    </button>
+                </section>
+            </div>`;
+
+    var optTemplate = `<div class="option level" id="1">
+                        <input type="text" class="input level-left mr-1" placeholder="Option" id="option-text">
+                        <input class="level-right" type="checkbox" id="correct-option">
+                    </div>`;
+
+    var count = 1;
+    function createQuestion() {
+        // var newQuestion = document.createElement()
+        var newQues = $(qTemplate);
+        newQues.find(".delete").on('click', onDeleteQuestion);
+        newQues.find("#add-option").on('click', addOption);
+        newQues.find("#type-select").on('change', (e) => {
+
+            var optmanager = $(e.target).parent().parent().find("#optionManager");
+
+            if ($(e.target).val() == "subjective") {
+                optmanager.attr('style', 'display:none;');
+            }
+            else {
+                optmanager.attr('style', '');
+            }
+        });
+        questions.push(count);
+        newQues.attr('qid', count);
+        count += 1;
+        $("#questions").append(newQues);
+        return newQues;
+    }
+    $("#add-question").on('click', createQuestion);
+
+    function addOption(e) {
+        var opt = $(optTemplate);
+        $(e.target).parent().find(".options").append(opt);
+    }
+
+
+    function onDeleteQuestion(e) {
+        var parentQues = $(e.target).parents(".question");
+        var id = parseInt(parentQues.attr('qid'));
+        var ind = questions.indexOf(id);
+        console.log("index", ind)
+        if (ind > -1) {
+            questions.splice(ind, 1);
+        }
+        parentQues.remove();
     }
     
+</script>
+<script type="text/javascript">
+    $("#save-questions").on('click', save);
+    function save() {
+        var main = $("#questions");
+        var questions = main.children(".question");
+        var data = {};
+        var course_code = $("#course-select").val();
+        var qb_code = $("#qbank-select").val();
+        data.course_code = course_code;
+        data.qb_code = qb_code;
+        var i = 1; 
+        for (question of questions) {
+            var obj = createJSONObject(question);
+            k = i.toString();
+            data[k] = obj; 
+            i+=1;
+        }
+        url = window.location.origin + "{% url 'grading-add_questions' %}";
+
+        fetch(url, {
+            method:"POST", 
+            body:JSON.stringify(data),
+        }).then((resp) => {
+            console.log(resp);
+        })
+    }
+    function createJSONObject(question) {
+        var prompt = $(question).find("textarea[name*='question-content']").val();
+        var type = $(question).find("#type-select").val();
+        var plusMarks = $(question).find("#plus-marks").val();
+        var minusMarks = $(question).find("#minus-marks").val();
+        var options = $(question).find(".option");
+        var obj = {};
+        obj.prompt = prompt;
+        obj.type = type; 
+        obj.plusMarks = plusMarks;
+        obj.minusMarks = minusMarks;
+        obj.difficulty_rating = 0;
+        // console.log(obj);
+        obj.options = {};
+        if(type == 'subjective'){
+            questions = [];
+        }
+        var no_of_correct = 0;
+        for(var i = 0; i < options.length; i++){
+            var option = {};
+            var k = i+1;
+            k = k.toString();
+            option.option_text = $(options[i]).find("#option-text").val();
+            option.correct = $(options[i]).find("#correct-option").is(":checked");
+            no_of_correct += option.correct;
+            obj.options[k] = option;
+        }
+        obj.no_of_correct = no_of_correct;
+        obj.multi_correct = (no_of_correct > 1);
+        console.log(obj);
+        return(obj);
+    }
 </script>
 {% endblock postBody%}

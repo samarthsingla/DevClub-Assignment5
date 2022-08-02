@@ -14,7 +14,7 @@ class Question(models.Model):
     author = models.ForeignKey(Account, on_delete=models.SET_NULL, null=True)
     question_bank = models.ManyToManyField(QuestionBank)
     content = models.JSONField(verbose_name="Question Content")
-    correct_marks = models.FloatField()
+    # correct_marks = models.FloatField()
 
 
 
