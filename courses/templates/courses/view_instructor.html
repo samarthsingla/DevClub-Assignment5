@@ -1,0 +1,176 @@
+{% extends "account/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %} {% if title %} {{title}} {% else %} {% endif %} View {% endblock title %}
+
+{% block content %}
+    <div class="columns">
+        <div class="column is-one-fifth card mt-6">
+            <aside class="menu ml-3">
+                <p class="menu-label">My Courses</p>
+                <ul class="menu-list" id="courses-list">
+                    <!-- <li> <a href="#">Course 1</a> </li> -->
+                </ul>
+            </aside>
+        </div>
+        <div class="column is-four-fifths is-offset-one-fifth mt-6 ml-0 box">
+            <div class="section">
+                <p class="title is-family-code" id="course_code"></p>
+                <p class="subtitle is-italic" id="course_title"> Select a course in the left menu</p>
+                
+            </div>
+            
+            <div class="block" id="main_info" >
+                <section class="section">
+                    <!-- New Stuff -->
+                    <p class="subtitle has-text-weight-semibold">
+                        <span class="icon"><i class="fa-solid fa-bullhorn"></i></span>
+                        Announcements
+                    </p>
+                    <!-- container for announcements -->
+                    <div class="announcements">
+                        <div class="has-text-centered is-italic is-family-secondary">No Announcements</div>
+                    </div>
+
+                    <!-- Instructor only -->
+                    <div class="modal is-active" id="new_ann_modal">
+                        <div class="modal-background"></div>
+                        <div class="modal-content">
+                            <div class="box">
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <button class="button">
+                        <span class="icon"><i class="fa-regular fa-square-plus"></i></span>
+                        <span>New Announcement </span>
+                    </button>
+                </section>
+                <section class="section">
+                    <p class="subtitle has-text-weight-semibold">
+                        <span class="icon"><i class="fa-solid fa-people-group"></i></span>
+                        Instructors
+                    </p>
+                        <div class="buttons" id="instructors">
+                            <a class="button is-ghost" href="mailto:lmao@example.com">
+                            <span class="icon"><i class="fa-solid fa-user-ninja"></i>Name</span>
+                                
+                            </a>
+                        </div>
+                        
+                    </section>
+                <section class="section mt-0">
+        
+                    <p class="subtitle has-text-weight-semibold">
+                        <span class="icon"><i class="fa-regular fa-file-lines"></i></span>
+                        Assignments
+                    </p>
+                </section>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock content %}
+
+{% block postBody%}
+    <script type="text/javascript">
+        $("#main_info").hide();
+        infos = {}; //to reduce server load, info on a course would be loaded only the first time the user clicks on the course name.
+        function loadCourses() {
+        url = window.location.origin + "{% url 'courses-get_courses' %}";
+        fetch(url, {
+            method: "POST"
+        })
+            .then((resp) => {
+                resp.json().then((data) => {
+                    console.log(data);
+                    for ([key, value] of Object.entries(data)) {
+                        var entry = $(`<li> <a id="course" code="${key}">${key}</a> </li>`);
+
+                        console.log($(entry).find("#course"));
+                        $(entry).find("#course").click(showCourseInfo);
+                        $("#courses-list").append(entry);
+                    }
+                })
+            })
+    }
+    $(document).ready(loadCourses);
+
+    function showCourseInfo(){
+        $("#main_info").show();
+        var code = $(event.target).attr('code');
+        console.log(code);
+        $("#course_code").text(code);
+        url = window.location.origin + "{% url 'courses-course_info' %}";
+        if(!infos[code]){
+            fetch(url, {
+            method:"POST",
+            body:JSON.stringify({'code':code}), 
+            redirect:"follow"
+            }).then((response) => {
+                response.json().then((data) =>{
+                    console.log(data);
+                    infos[code] = data;
+                    displayInfo(data);
+                })
+            })
+        }
+        else{
+            displayInfo(infos[code]);
+        }
+
+    }
+    function displayInfo(data){
+        $("#course_title").html(data.title + "<br>" + `<p class="menu-label">${data.credits} Credits · <span class="icon"><i class="fa-solid fa-users"></i></span>
+                ${data.student_count} Enrolled </p>`);
+        var members = JSON.parse(data.members);
+        var instructors = $("#instructors");
+        instructors.empty();
+
+        for(m of Object.entries(members)){
+            var name = m[0]; 
+            var m_info = JSON.parse(m[1]);
+            if(m_info.is_instructor){
+                instructors.append($(`<a class="button card" href="mailto:${m_info.email}">
+                            <span class="icon"><i class="fa-solid fa-user-ninja"></i></span>
+                            <span> ${m_info.name} </span>
+                            </a>`))
+            }
+        }
+    }
+
+    function showQBanks() {
+
+        url = window.location.origin + "{% url 'grading-get_qbanks' %}";
+        data = new FormData();
+        data.append("code", code);
+
+        fetch(url, {
+            method: "POST",
+            body: data
+        }).then((response) => {
+            response.json().then((data) => {
+                //handler
+                var qbanks = []
+                for ([key, value] of Object.entries(data)) {
+                    qbanks.append([key, value]);
+                }
+                return qbanks
+            })
+        })
+
+    }
+    </script>
+    <script type="text/javascript">
+        //announcement handler
+        function get_announcements(code){
+            url = window.location.origin + "{% url 'communication-get_announcements' %}"; 
+            fetch(url, {
+                method:"POST", 
+                
+            })
+        }
+
+    </script>
+{% endblock postBody%}

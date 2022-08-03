@@ -7,4 +7,4 @@ class CourseAddForm(ModelForm):
     
     class Meta:
         model = Course
-        fields = ['code', 'title', 'members',]
+        fields = ['code', 'title', 'members','credits']

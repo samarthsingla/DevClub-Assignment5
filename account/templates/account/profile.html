@@ -9,6 +9,7 @@
     <div class="column is-three-fifths is-offset-one-fifth">
         <div class="card">
             <div class="media-content p-5">
+                <p class="menu-label">{% if user.is_instructor %} Instructor {% else %} Student {% endif %}</p>
                 <p class="title is-4">{{request.user.name}}</p>
                 <p class="subtitle is-6"> {{request.user.username}} | {{request.user.email}}</p>
             </div>
