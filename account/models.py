@@ -62,6 +62,13 @@ class Account(AbstractBaseUser):
 
     def has_module_perms(self, app_label):
         return True
+        
+    def basicInfo(self):
+        obj = {}
+        obj['name'] = self.name
+        obj['username'] = self.username
+        obj['is_instructor'] = self.is_instructor
+        return obj
 
     
 

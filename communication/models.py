@@ -1,6 +1,7 @@
 from django.db import models
 from account.models import Account
 from courses.models import Course
+import json
 # Create your models here.
 
 class Announcement(models.Model):
@@ -10,3 +11,16 @@ class Announcement(models.Model):
     content = models.TextField(verbose_name="Message")
     posted = models.DateTimeField(auto_now_add=True)
     
+    def __str__(self):
+        return self.title + " in " + self.course.code + " by " + self.instructor.name
+    
+    def announcement_info(self):
+        obj = {}
+        obj['instructor'] = json.dumps(self.instructor.basicInfo())
+        obj['title'] = self.title
+        obj['content'] = self.content
+        obj['posted_on'] = self.posted.strftime("%d %b, %Y at %H:%M")
+        obj['course'] = self.course.code
+        return obj
+
+

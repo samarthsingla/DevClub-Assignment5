@@ -25,25 +25,64 @@
                     <!-- New Stuff -->
                     <p class="subtitle has-text-weight-semibold">
                         <span class="icon"><i class="fa-solid fa-bullhorn"></i></span>
-                        Announcements
+                        Recent Announcements
                     </p>
                     <!-- container for announcements -->
-                    <div class="announcements">
-                        <div class="has-text-centered is-italic is-family-secondary">No Announcements</div>
+                    <div class="columns is-vcentered">
+                        <div class="announcements mb-4 column is-three-quarters" id="announcements-preview">
+                            <div class="is-italic is-family-secondary">No Announcements</div>
+                            
+                        </div>
+                        <div class="column">
+                            <button class="button is-white" id="view-all"><span id="view-all-text">View All</span>
+                            <span class="icon"><i class="fa-solid fa-circle-chevron-right"></i></span>
+                            </button>
+                        </div>
                     </div>
-
-                    <!-- Instructor only -->
-                    <div class="modal is-active" id="new_ann_modal">
+                    <!-- modal for all announcements -->
+                    <div class="modal" id="announcements-modal">
                         <div class="modal-background"></div>
                         <div class="modal-content">
-                            <div class="box">
-                                
+                            <div class="modal-card">
+                                <header class="modal-card-head">
+                                    <p class="modal-card-title">All Announcements</p>
+                                </header>
+                                <div class="modal-card-body" id="all-announcements">
+                                    No Announcements
+                                </div>
+                                <div class="modal-card-foot"></div>
                             </div>
                         </div>
                     </div>
-                    <button class="button">
+                    
+                    <!-- Instructor only -->
+                    <div class="modal" id="new_announcement_modal">
+                        <div class="modal-background" id="new_announcement_bg"></div>
+                        <div class="modal-content">
+                            <div class="box">
+                                <div class="notifications">
+
+                                </div>
+                                <fieldset>
+                                    <p class="subtitle is-family-secondary has-text-centered">New Announcement</p>
+                                    <div class="field">
+                                        <label for="" class="label">Title</label>
+                                        <input type="text" class="input" id="title">
+                                    </div>
+                                    <div class="field">
+                                        <label class="label" for="">Message</label>
+                                        <textarea class="textarea" id="content"></textarea>
+                                    </div>
+                                    <div class="has-text-centered">
+                                        <button class="button is-dark" id="post">Post</button>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="button" id="new-announcement">
                         <span class="icon"><i class="fa-regular fa-square-plus"></i></span>
-                        <span>New Announcement </span>
+                        <span>New Announcement</span>
                     </button>
                 </section>
                 <section class="section">
@@ -52,10 +91,7 @@
                         Instructors
                     </p>
                         <div class="buttons" id="instructors">
-                            <a class="button is-ghost" href="mailto:lmao@example.com">
-                            <span class="icon"><i class="fa-solid fa-user-ninja"></i>Name</span>
-                                
-                            </a>
+                            
                         </div>
                         
                     </section>
@@ -100,6 +136,7 @@
     function showCourseInfo(){
         $("#main_info").show();
         var code = $(event.target).attr('code');
+        get_announcements(code);
         console.log(code);
         $("#course_code").text(code);
         url = window.location.origin + "{% url 'courses-course_info' %}";
@@ -110,7 +147,7 @@
             redirect:"follow"
             }).then((response) => {
                 response.json().then((data) =>{
-                    console.log(data);
+                    // console.log(data);
                     infos[code] = data;
                     displayInfo(data);
                 })
@@ -122,6 +159,7 @@
 
     }
     function displayInfo(data){
+        //dot thingy
         $("#course_title").html(data.title + "<br>" + `<p class="menu-label">${data.credits} Credits · <span class="icon"><i class="fa-solid fa-users"></i></span>
                 ${data.student_count} Enrolled </p>`);
         var members = JSON.parse(data.members);
@@ -138,6 +176,7 @@
                             </a>`))
             }
         }
+        
     }
 
     function showQBanks() {
@@ -164,13 +203,110 @@
     </script>
     <script type="text/javascript">
         //announcement handler
+        var announcementcard_template = `<article class="media box p-3 m-4" id="announcement">
+                                            <div class="media-content">
+                                                <strong id="name"></strong> ·
+                                                <small class="is-italic" id="username"></small> <br>
+                                                <small class="heading" id="datetime"></small>
+                                                <hr class="dropdown-divider">
+                                                <p class="subtitle is-family-secondary mb-1" id="title"></p>
+                                                <p id="content"></p>
+                                            </div>
+                                        </article>`;
+
         function get_announcements(code){
-            url = window.location.origin + "{% url 'communication-get_announcements' %}"; 
+            var url = window.location.origin + "{% url 'communication-get_announcements' %}"; 
             fetch(url, {
-                method:"POST", 
-                
+                method : "POST", 
+                body : JSON.stringify({'code':code})
+            }).then(resp => {
+                resp.json().then(data => {
+                    console.log(data);
+                    var entries = Object.entries(data)
+                    if(entries.length > 0){
+                        $("#all-announcements").empty();
+                        $("#announcements-preview").empty();
+                        var obj = $(announcementcard_template);
+                        var each = JSON.parse(entries[0][1]);
+                        var inst = JSON.parse(each.instructor);
+                        obj.find('#name').html(inst.name);
+                        obj.find('#username').html("@" + inst.username);
+                        obj.find('#datetime').html(each.posted_on);
+                        obj.find('#title').html(each.title);
+                        obj.find('#content').html(each.content);
+                        $("#announcements-preview").append(obj);
+                        $("#view-all-text").text(`View ${entries.length -1} more`);
+
+                    }
+                    else{
+                        $("#all-announcements").html("No Announcements");
+                        $("#announcements-preview").html("No Announcements");
+                        $("#view-all-text").text(``);
+
+                    }
+                    for([key,value] of entries){
+                        var each = JSON.parse(value);
+                        var obj = $(announcementcard_template);
+                        console.log(each);
+                        var inst = JSON.parse(each.instructor);
+                        obj.find('#name').html(inst.name);
+                        obj.find('#username').html("@" + inst.username);
+                        obj.find('#datetime').html(each.posted_on);
+                        obj.find('#title').html(each.title);
+                        obj.find('#content').html(each.content);
+                        $("#all-announcements").append(obj);
+                    }
+                })  
             })
         }
+        function displayAnnouncements(announcements){
+            for(obj of Object.entries(announcements)){
+                console.log(obj);
+            }
+        }
+
+        $(document).ready(function(){
+            //modal
+            $(".modal-background").click(function(){
+                closeAllModals();
+            })
+
+            $("#new-announcement").click(function(){
+                $("#new_announcement_bg").parent().addClass("is-active");
+
+            })
+            $("#view-all").click(function(){
+                $("#announcements-modal").addClass("is-active");
+            })
+            $("#post").click(function(event){
+                console.log(event);
+                var par = $(event.target).parent().parent();
+                var title = par.find("#title").val();
+                var content = par.find("#content").val();
+                url = window.location.origin + "{% url 'communication-post_announcement' %}";
+                fetch(url, {
+                    method : "POST", 
+                    body : JSON.stringify({"code":$("#course_code").text(), "title" :title, "content":content})
+                }).then(resp => {
+                    if(resp.status == 200){
+                        closeAllModals();
+                    }
+                    else{
+                         $(".notifications").append(createErrorNoti("Something went wrong. Check your network connection and try again"));
+                        console.log(resp);
+                    }
+                })
+
+            })
+        })
+        function closeAllModals(){
+            $(".modal-background").parent().removeClass("is-active");
+        }
+
+        function createErrorNoti(text){
+        var templ = `<div class="notification is-danger">` + text + `</div>`;
+        return $(templ);
+    }
 
     </script>
 {% endblock postBody%}
