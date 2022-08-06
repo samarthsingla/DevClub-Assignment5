@@ -9,7 +9,6 @@
             <aside class="menu ml-3">
                 <p class="menu-label">My Courses</p>
                 <ul class="menu-list" id="courses-list">
-                    <!-- <li> <a href="#">Course 1</a> </li> -->
                 </ul>
             </aside>
         </div>
@@ -101,6 +100,8 @@
                         <span class="icon"><i class="fa-regular fa-file-lines"></i></span>
                         Assignments
                     </p>
+                    <button class="button" id="create_assgn">Create Assignment</button>
+
                 </section>
             </div>
         </div>
@@ -128,6 +129,7 @@
                         $(entry).find("#course").click(showCourseInfo);
                         $("#courses-list").append(entry);
                     }
+                    $("#courses-list").append($(`<a href="{% url 'courses-add_course' %}" class="button is-link">Add a Course</a>`))
                 })
             })
     }
@@ -273,7 +275,6 @@
 
             $("#new-announcement").click(function(){
                 $("#new_announcement_bg").parent().addClass("is-active");
-
             })
             $("#view-all").click(function(){
                 $("#announcements-modal").addClass("is-active");
@@ -290,6 +291,7 @@
                 }).then(resp => {
                     if(resp.status == 200){
                         closeAllModals();
+                        get_announcements($("#course_code").text());
                     }
                     else{
                          $(".notifications").append(createErrorNoti("Something went wrong. Check your network connection and try again"));
@@ -308,5 +310,8 @@
         return $(templ);
     }
 
+    </script>
+    <script type="text/javascript">
+        
     </script>
 {% endblock postBody%}

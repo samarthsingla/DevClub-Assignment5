@@ -73,3 +73,5 @@ def new_qbank(request):
     else:
         return render(request, 'account/genericError.html', {'error_message':'You need to be logged in as an instructor to create question banks'})
 
+def createAssignment(request):
+    pass

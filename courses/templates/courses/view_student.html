@@ -4,51 +4,78 @@
 {% block title %} {% if title %} {{title}} {% else %} {% endif %} View {% endblock title %}
 
 {% block content %}
-    <div class="columns">
-        <div class="column is-one-fifth card mt-6">
-            <aside class="menu ml-3">
-                <p class="menu-label">My Courses</p>
-                <ul class="menu-list" id="courses-list">
-                    <!-- <li> <a href="#">Course 1</a> </li> -->
-                </ul>
-            </aside>
-        </div>
-        <div class="column is-four-fifths is-offset-one-fifth mt-6 ml-0 box">
-            <div class="section">
-                <p class="title is-family-code" id="course_code"></p>
-                <p class="subtitle is-italic" id="course_title"> Select a course in the left menu</p>
-            </div>
+<div class="columns">
+    <div class="column is-one-fifth card mt-6">
+        <aside class="menu ml-3">
+            <p class="menu-label">My Courses</p>
+            <ul class="menu-list" id="courses-list">
+                <!-- <li> <a href="#">Course 1</a> </li> -->
+            </ul>
+        </aside>
+    </div>
+    <div class="column is-four-fifths is-offset-one-fifth mt-6 ml-0 box">
+        <div class="section">
+            <p class="title is-family-code" id="course_code"></p>
+            <p class="subtitle is-italic" id="course_title"> Select a course in the left menu</p>
             
-            <div class="block" id="main_info" >
-                <section class="section">
-                    <p class="subtitle has-text-weight-semibold">
-                        <span class="icon"><i class="fa-solid fa-bullhorn"></i></span>
-                        Announcements
-                    </p>
-                </section>
-                <section class="section">
-                    <p class="subtitle has-text-weight-semibold">
-                        <span class="icon"><i class="fa-solid fa-people-group"></i></span>
-                        Instructors
-                    </p>
-                        <div class="buttons" id="instructors">
-                            <a class="button is-ghost" href="mailto:lmao@example.com">
-                            <span class="icon"><i class="fa-solid fa-user-ninja"></i>Name</span>
-                                
-                            </a>
-                        </div>
-                        
-                    </section>
-                <section class="section mt-0">
+        </div>
         
-                    <p class="subtitle has-text-weight-semibold">
-                        <span class="icon"><i class="fa-regular fa-file-lines"></i></span>
-                        Assignments
-                    </p>
-                </section>
-            </div>
+        <div class="block" id="main_info" >
+            <section class="section">
+                <!-- New Stuff -->
+                <p class="subtitle has-text-weight-semibold">
+                    <span class="icon"><i class="fa-solid fa-bullhorn"></i></span>
+                    Recent Announcements
+                </p>
+                <!-- container for announcements -->
+                <div class="columns is-vcentered">
+                    <div class="announcements mb-4 column is-three-quarters" id="announcements-preview">
+                        <div class="is-italic is-family-secondary">No Announcements</div>
+                        
+                    </div>
+                    <div class="column">
+                        <button class="button is-white" id="view-all"><span id="view-all-text">View All</span>
+                        <span class="icon"><i class="fa-solid fa-circle-chevron-right"></i></span>
+                        </button>
+                    </div>
+                </div>
+                <!-- modal for all announcements -->
+                <div class="modal" id="announcements-modal">
+                    <div class="modal-background"></div>
+                    <div class="modal-content">
+                        <div class="modal-card">
+                            <header class="modal-card-head">
+                                <p class="modal-card-title">All Announcements</p>
+                            </header>
+                            <div class="modal-card-body" id="all-announcements">
+                                No Announcements
+                            </div>
+                            <div class="modal-card-foot"></div>
+                        </div>
+                    </div>
+                </div>
+                
+            </section>
+            <section class="section">
+                <p class="subtitle has-text-weight-semibold">
+                    <span class="icon"><i class="fa-solid fa-people-group"></i></span>
+                    Instructors
+                </p>
+                    <div class="buttons" id="instructors">
+                        
+                    </div>
+                    
+            </section>
+            <section class="section mt-0">
+    
+                <p class="subtitle has-text-weight-semibold">
+                    <span class="icon"><i class="fa-regular fa-file-lines"></i></span>
+                    Assignments
+                </p>
+            </section>
         </div>
     </div>
+</div>
 
 
 {% endblock content %}
@@ -81,6 +108,7 @@
         $("#main_info").show();
         var code = $(event.target).attr('code');
         console.log(code);
+        get_announcements(code);
         $("#course_code").text(code);
         url = window.location.origin + "{% url 'courses-course_info' %}";
         if(!infos[code]){
@@ -140,5 +168,113 @@
         })
 
     }
+    </script>
+     <script type="text/javascript">
+        //announcement handler
+        var announcementcard_template = `<article class="media box p-3 m-4" id="announcement">
+                                            <div class="media-content">
+                                                <strong id="name"></strong> ·
+                                                <small class="is-italic" id="username"></small> <br>
+                                                <small class="heading" id="datetime"></small>
+                                                <hr class="dropdown-divider">
+                                                <p class="subtitle is-family-secondary mb-1" id="title"></p>
+                                                <p id="content"></p>
+                                            </div>
+                                        </article>`;
+
+        function get_announcements(code){
+            var url = window.location.origin + "{% url 'communication-get_announcements' %}"; 
+            fetch(url, {
+                method : "POST", 
+                body : JSON.stringify({'code':code})
+            }).then(resp => {
+                resp.json().then(data => {
+                    console.log(data);
+                    var entries = Object.entries(data)
+                    if(entries.length > 0){
+                        $("#all-announcements").empty();
+                        $("#announcements-preview").empty();
+                        var obj = $(announcementcard_template);
+                        var each = JSON.parse(entries[0][1]);
+                        var inst = JSON.parse(each.instructor);
+                        obj.find('#name').html(inst.name);
+                        obj.find('#username').html("@" + inst.username);
+                        obj.find('#datetime').html(each.posted_on);
+                        obj.find('#title').html(each.title);
+                        obj.find('#content').html(each.content);
+                        $("#announcements-preview").append(obj);
+                        $("#view-all-text").text(`View ${entries.length -1} more`);
+
+                    }
+                    else{
+                        $("#all-announcements").html("No Announcements");
+                        $("#announcements-preview").html("No Announcements");
+                        $("#view-all-text").text(``);
+
+                    }
+                    for([key,value] of entries){
+                        var each = JSON.parse(value);
+                        var obj = $(announcementcard_template);
+                        console.log(each);
+                        var inst = JSON.parse(each.instructor);
+                        obj.find('#name').html(inst.name);
+                        obj.find('#username').html("@" + inst.username);
+                        obj.find('#datetime').html(each.posted_on);
+                        obj.find('#title').html(each.title);
+                        obj.find('#content').html(each.content);
+                        $("#all-announcements").append(obj);
+                    }
+                })  
+            })
+        }
+        function displayAnnouncements(announcements){
+            for(obj of Object.entries(announcements)){
+                console.log(obj);
+            }
+        }
+
+        $(document).ready(function(){
+            //modal
+            $(".modal-background").click(function(){
+                closeAllModals();
+            })
+
+            $("#new-announcement").click(function(){
+                $("#new_announcement_bg").parent().addClass("is-active");
+            })
+            $("#view-all").click(function(){
+                $("#announcements-modal").addClass("is-active");
+            })
+            // $("#post").click(function(event){
+            //     console.log(event);
+            //     var par = $(event.target).parent().parent();
+            //     var title = par.find("#title").val();
+            //     var content = par.find("#content").val();
+            //     url = window.location.origin + "{% url 'communication-post_announcement' %}";
+            //     fetch(url, {
+            //         method : "POST", 
+            //         body : JSON.stringify({"code":$("#course_code").text(), "title" :title, "content":content})
+            //     }).then(resp => {
+            //         if(resp.status == 200){
+            //             closeAllModals();
+            //             get_announcements($("#course_code").text());
+            //         }
+            //         else{
+            //              $(".notifications").append(createErrorNoti("Something went wrong. Check your network connection and try again"));
+            //             console.log(resp);
+            //         }
+            //     })
+
+            // })
+        })
+        function closeAllModals(){
+            $(".modal-background").parent().removeClass("is-active");
+        }
+
+        function createErrorNoti(text){
+        var templ = `<div class="notification is-danger">` + text + `</div>`;
+        return $(templ);
+    }
+
     </script>
 {% endblock postBody%}
