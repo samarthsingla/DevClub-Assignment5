@@ -37,4 +37,6 @@ Intructors can make course-wide announcements from the My Courses page (Courses 
 - Course Grades view
 - Submit (and grade, for instructors) Assignments
 - View Assignment Scores
+- Course Documents
+- Personal Messages
 - Some more essential features (edit profile, delete questions and question banks, etc)
