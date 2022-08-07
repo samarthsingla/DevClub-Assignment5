@@ -16,6 +16,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include 
 from account.views import account_register
+from grading.views import createAssignment
+
+from django.conf import settings
+from django.conf.urls.static import static
+
 urlpatterns = [
     path("", account_register),
     path('admin/', admin.site.urls),
@@ -23,5 +28,8 @@ urlpatterns = [
     path('account/', include('django.contrib.auth.urls')),
     path('courses/', include('courses.urls')),
     path('quiz/', include('grading.urls')),
-    path('message/', include('communication.urls'))
-]
+    path('message/', include('communication.urls')),
+    path('createAssignment/<str:code>/', createAssignment, name="createAssignmentCODE"),
+    path('createAssignment/', createAssignment, name="createAssignment")
+
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

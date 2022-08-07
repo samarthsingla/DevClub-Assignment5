@@ -1,0 +1,56 @@
+{% extends "account/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %} {% if title %} {{title}} {% else %} {% endif %} {% endblock title %}
+
+{% block content %}
+    <div class="columns">
+        <div class="column is-three-fifths is-offset-one-fifth">
+            <form action="{% url 'createAssignment' %}" enctype="multipart/form-data" method="POST">
+                {% csrf_token %}
+                <input type="hidden" class="input" value="{{code}}" name="code">
+
+                <label for="" Required class="label">Title</label>
+                <input type="text" class="input" name="title">
+
+                <label for="" Required class="label">Due</label>
+                <input type="datetime-local" class="input" name="due">
+<!-- 
+                <label for="" class="label"> Due Time</label>
+                <input type="time" class="input" name="time"> -->
+
+                <label for="" class="label">Max Marks</label>
+                <input type="number" Required class="input" name="max_marks">
+
+                <div class="file has-name is-full-width mt-4 has-text-centered">
+                    <label class="file-label">
+                      <input class="file-input" type="file" name="file" id="assignment-file">
+                      <span class="file-cta">
+                        <span class="file-icon">
+                          <i class="fas fa-upload"></i>
+                        </span>
+                        <span class="file-label">
+                          Upload Assignment...
+                        </span>
+                      </span>
+                      <span class="file-name">
+
+                      </span>
+                    </label>
+                  </div>
+                  <div class="has-text-centered">
+                    <button class="button mt-3 is-primary">Create Assignment</button>
+                  </div>
+
+            </form>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block postBody%}
+<script type="text/javascript">
+    $("#assignment-file").change(function(){
+        $(".file-name").text($("#assignment-file")[0].files[0].name);
+    })
+</script>
+{% endblock postBody%}

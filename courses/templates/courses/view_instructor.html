@@ -100,7 +100,7 @@
                         <span class="icon"><i class="fa-regular fa-file-lines"></i></span>
                         Assignments
                     </p>
-                    <button class="button" id="create_assgn">Create Assignment</button>
+                    <a class="button" id="create_assgn" href="{% url 'createAssignment' %}">Create Assignment</a>
 
                 </section>
             </div>
@@ -165,6 +165,11 @@
         $("#course_title").html(data.title + "<br>" + `<p class="menu-label">${data.credits} Credits · <span class="icon"><i class="fa-solid fa-users"></i></span>
                 ${data.student_count} Enrolled </p>`);
         var members = JSON.parse(data.members);
+
+        var btn = $("#create_assgn");
+        var old = btn.attr('href'); 
+        var url_with_code = old + $("#course_code").text();
+        btn.attr('href', url_with_code);
         var instructors = $("#instructors");
         instructors.empty();
 

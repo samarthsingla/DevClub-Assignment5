@@ -23,7 +23,9 @@ class Quiz(models.Model):
 
 class Assignment(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    file = models.FileField()
+    file = models.FileField(null=True)
+    due = models.DateTimeField(verbose_name="Due Date")
+    max_marks = models.IntegerField(null=True)
 
 class Grade(models.Model):
     GRADE_CHOICES = (('A', 'A'), ('A-', 'A-'), ('B', 'B'), ('B-', 'B-'), ('C', 'C'), ('C-', 'C-'), ('D', 'D'), ('F', 'F'))
@@ -31,3 +33,4 @@ class Grade(models.Model):
     student = models.ForeignKey(Account, on_delete=models.CASCADE)
     points = models.IntegerField(validators=[MaxValueValidator(100)])
     grade  = models.CharField(max_length=2, choices=GRADE_CHOICES)
+

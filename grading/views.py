@@ -4,7 +4,8 @@ from grading.models import Question, QuestionBank
 from courses.models import Course
 from django.http import JsonResponse
 import json
-
+from grading.models import Assignment
+from django.contrib import messages
 def question_Editor(request):
     return render(request, 'grading/q_editor.html', {})
 
@@ -73,5 +74,25 @@ def new_qbank(request):
     else:
         return render(request, 'account/genericError.html', {'error_message':'You need to be logged in as an instructor to create question banks'})
 
-def createAssignment(request):
+
+def createAssignment(request, code=None):
+    user = request.user
+    if user.is_authenticated and user.is_instructor:
+        if request.method == "POST":
+            data = request.POST
+            print(data)
+            assgn = Assignment()
+            assgn.course = Course.objects.get(code = data.get("code"))
+            assgn.due = data['due']
+            assgn.max_marks = data['max_marks']
+            if len(request.FILES) > 0:
+                assgn.file = request.FILES.get('file')
+            messages.add_message(request, messages.SUCCESS, "Assignment Added Successfully!")
+            return render(request, "grading/createAssignment.html", {'code':code})
+        else:
+            return render(request, "grading/createAssignment.html", {'code':code})
+    else:
+        return render(request, 'account/genericError.html', {'error_message':"You need to be logged in as an instructor"})
+
+def get_assignments(request):
     pass
