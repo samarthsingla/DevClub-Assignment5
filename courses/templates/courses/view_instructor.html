@@ -168,7 +168,7 @@
 
         var btn = $("#create_assgn");
         var old = btn.attr('href'); 
-        var url_with_code = old + $("#course_code").text();
+        var url_with_code = "{% url 'createAssignment' %}" + $("#course_code").text();
         btn.attr('href', url_with_code);
         var instructors = $("#instructors");
         instructors.empty();

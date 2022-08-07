@@ -79,15 +79,20 @@ def createAssignment(request, code=None):
     user = request.user
     if user.is_authenticated and user.is_instructor:
         if request.method == "POST":
-            data = request.POST
-            print(data)
-            assgn = Assignment()
-            assgn.course = Course.objects.get(code = data.get("code"))
-            assgn.due = data['due']
-            assgn.max_marks = data['max_marks']
-            if len(request.FILES) > 0:
-                assgn.file = request.FILES.get('file')
-            messages.add_message(request, messages.SUCCESS, "Assignment Added Successfully!")
+            try:
+                data = request.POST
+                print(data)
+                assgn = Assignment()
+                assgn.course = Course.objects.get(code = data.get("code"))
+                assgn.due = data['due']
+                assgn.max_marks = data['max_marks']
+                if len(request.FILES) > 0:
+                    assgn.file = request.FILES.get('file')
+                assgn.save()
+                messages.add_message(request, messages.SUCCESS, "Assignment Added Successfully!")
+                return redirect("courses-view")
+            except:
+                messages.add_message(request, messages.ERROR, "Something went wrong. Please Try again.")
             return render(request, "grading/createAssignment.html", {'code':code})
         else:
             return render(request, "grading/createAssignment.html", {'code':code})
