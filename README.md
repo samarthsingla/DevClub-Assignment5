@@ -2,8 +2,10 @@
 Noodl is a learning management system that is both intuitive and fun-to-use!
 
 ## Launch instructions
-- Install requirements.txt (`pip install -r requirements.txt`) after creating and activating a virtual environment (`python3 -m venv env` for MacOS, `python -m venv env` otherwise. `source env/bin/activate` to activate).  
-- run `python3 manage.py runserver` (MacOS) or `python manage.py runserver` (Otherwise) to run the server. Visit (http://127.0.0.1:8000/)[localhost]
+- Clone this repository and navigate to it via the terminal
+- Create a Virtual Environment -> `python3 -m venv env` for MacOS, `python -m venv env` otherwise
+- Install requirements.txt (`pip install -r requirements.txt`) a
+- run `python3 manage.py runserver` (MacOS) or `python manage.py runserver` (Otherwise) to run the server. Visit [Localhost](http://127.0.0.1:8000/)
 - 
 ## Features
 
