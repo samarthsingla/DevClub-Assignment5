@@ -24,7 +24,15 @@ Noodl is a learning management system that is both intuitive and fun-to-use!
 ### Question Editor
 The question editor is extremely easy to use. Add a question then type it's prompt (MathJAX Support coming soon), select question type (Objective or Subjective) and marks for correct and incorrect responses, add as many options as you want (if objective) and tick the correct options. Thats it.
 
+### Assignments
+To create an assignment, go to My Courses, select a course from the menu, and Create an Assignment under the assignments section
+
 ### Announcements
 Intructors can make course-wide announcements from the My Courses page (Courses > My Courses)
 
-### In Development
+### Under Development
+- Quiz App to make and attempt quizzes from question bank questions
+- Course Grades view
+- Submit (and grade, for instructors) Assignments
+- View Assignment Scores
+- Some more essential features (edit profile, delete questions and question banks, etc)
