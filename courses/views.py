@@ -51,6 +51,8 @@ def view(request):
             else:
                 context = {}
                 return render(request, 'courses/view_student.html', context)
+    else:
+        return render(request, "account/genericError.html", {"error_message":"You need to be logged in to view this page"})
 
 @csrf_exempt
 def course_info(request):
